@@ -15,30 +15,32 @@ import (
 	"github.com/maxmind/mmdbwriter/mmdbtype"
 )
 
-// IPInfo represents the relevant structure of the country aggregated.json files.
+// IPInfo represents the relevant structure of the country-ip-blocks aggregated.json files.
 type IPInfo struct {
-	CountryCode string `json:"country-code"`
+	CountryCode string `json:"countryCode"`
 	CountryName string `json:"country"`
-	Subnets     struct {
+	Prefixes    struct {
 		IPv4 []string `json:"ipv4"`
 		IPv6 []string `json:"ipv6"`
-	} `json:"subnets"`
+	} `json:"prefixes"`
 }
 
-// ASNInfo represents the relevant structure of the ASN aggregated.json files.
+// ASNInfo represents the relevant structure of the as-ip-blocks aggregated.json files.
 type ASNInfo struct {
-	ASN         int    `json:"asn"`
-	Description string `json:"description"`
-	Subnets     struct {
+	ASN      int `json:"asn"`
+	Metadata struct {
+		Description string `json:"description"`
+	} `json:"metadata"`
+	Prefixes struct {
 		IPv4 []string `json:"ipv4"`
 		IPv6 []string `json:"ipv6"`
-	} `json:"subnets"`
+	} `json:"prefixes"`
 }
 
 // CLI holds the command-line arguments, parsed by Kong.
 var CLI struct {
-	CountryDir string `kong:"name='country-dir',default='rir-ip/country',help='Root directory for country data. If empty, this DB is not generated.'"`
-	AsnDir     string `kong:"name='asn-dir',default='asn-ip/as',help='Root directory for ASN data. If empty, this DB is not generated.'"`
+	CountryDir string `kong:"name='country-dir',default='country-ip-blocks/country',help='Root directory for country data. If empty, this DB is not generated.'"`
+	AsnDir     string `kong:"name='asn-dir',default='as-ip-blocks/as',help='Root directory for ASN data. If empty, this DB is not generated.'"`
 }
 
 func main() {
@@ -154,7 +156,7 @@ func processCountryFile(filePath string, writer *mmdbwriter.Tree) error {
 		},
 	}
 
-	allSubnets := append(ipInfo.Subnets.IPv4, ipInfo.Subnets.IPv6...)
+	allSubnets := append(ipInfo.Prefixes.IPv4, ipInfo.Prefixes.IPv6...)
 	for _, cidr := range allSubnets {
 		_, network, err := net.ParseCIDR(cidr)
 		if err != nil {
@@ -229,10 +231,10 @@ func processAsnFile(filePath string, writer *mmdbwriter.Tree) error {
 
 	record := mmdbtype.Map{
 		"autonomous_system_number":       mmdbtype.Uint32(asnInfo.ASN),
-		"autonomous_system_organization": mmdbtype.String(asnInfo.Description),
+		"autonomous_system_organization": mmdbtype.String(asnInfo.Metadata.Description),
 	}
 
-	allSubnets := append(asnInfo.Subnets.IPv4, asnInfo.Subnets.IPv6...)
+	allSubnets := append(asnInfo.Prefixes.IPv4, asnInfo.Prefixes.IPv6...)
 	for _, cidr := range allSubnets {
 		_, network, err := net.ParseCIDR(cidr)
 		if err != nil {

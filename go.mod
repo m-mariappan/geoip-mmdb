@@ -1,14 +1,14 @@
 module geoip-mmdb
 
-go 1.24.2
+go 1.26.0
 
 require (
-	github.com/alecthomas/kong v1.11.0
-	github.com/maxmind/mmdbwriter v1.0.0
+	github.com/alecthomas/kong v1.14.0
+	github.com/maxmind/mmdbwriter v1.2.0
 )
 
 require (
-	github.com/oschwald/maxminddb-golang v1.12.0 // indirect
-	go4.org/netipx v0.0.0-20220812043211-3cc044ffd68d // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	github.com/oschwald/maxminddb-golang/v2 v2.1.1 // indirect
+	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
+	golang.org/x/sys v0.41.0 // indirect
 )
